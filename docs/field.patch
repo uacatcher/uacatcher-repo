@@ -1,0 +1,34 @@
+diff --git a/cpp/ql/lib/semmle/code/cpp/pointsto/PointsTo.qll b/cpp/ql/lib/semmle/code/cpp/pointsto/PointsTo.qll
+index a9802fad4b..6f50b25a97 100644
+--- a/cpp/ql/lib/semmle/code/cpp/pointsto/PointsTo.qll
++++ b/cpp/ql/lib/semmle/code/cpp/pointsto/PointsTo.qll
+@@ -451,6 +451,11 @@ predicate flowToCompound(Element destParent, string destLabel, Element src) {
+   //
+ }
+ 
++string getFALabel(FieldAccess fa) {
++  exists(Struct st, Field f | fa.getTarget() = f and f = st.getAField() | 
++    result = st.getName() + "." + f.getName())
++}
++
+ /**
+  * There is a flow from the compound (parent, label) to dest.
+  */
+@@ -470,7 +475,7 @@ predicate flowFromCompound(Element parent, string label, Element dest) {
+   exists(FieldAccess fa |
+     dest = fa and
+     parent = fa.getQualifier().getFullyConverted() and
+-    label = fa.getTarget().getName() and
++    label = getFALabel(fa) and  // fa.getTarget().getName() and
+     lvalue(dest)
+   )
+   or
+@@ -520,7 +525,7 @@ predicate pointerFromCompound(Element parent, string label, Element dest) {
+   exists(FieldAccess fa |
+     dest = fa and
+     parent = fa.getQualifier().getFullyConverted() and
+-    label = fa.getTarget().getName() and
++    label = getFALabel(fa) and  // fa.getTarget().getName() and
+     not lvalue(dest)
+   )
+   or
